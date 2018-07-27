@@ -20,6 +20,7 @@ public class WorldManager : MonoBehaviour {
     public SpecialEventsLocation specialEvents;
 
     string spreadsheet_primary = "https://docs.google.com/spreadsheets/d/1VO0ETqqW03WUyQsbS5gwJcpyELVSgZ0qz7JuGqfVTh0/export?format=csv&gid=";
+    string spreadsheet_new = "https://docs.google.com/spreadsheets/d/1Y8yyIOYjkCv6R-TGaAHU85d-J1VBes0gKGYdbXCldyI/export?format=csv&gid=";
     string spreadsheet_ichiro = "https://docs.google.com/spreadsheets/d/15afgZ3kx4NzncckWuEOtIY8cUNWiWRihqsbKZagSYS0/export?format=csv&gid=";
     string neighborhood_gid = "742526018";
     string location_gid = "1254739945";
@@ -53,7 +54,7 @@ public class WorldManager : MonoBehaviour {
     {
         if (isPrimary)
         {
-            spreadsheet = spreadsheet_primary;
+            spreadsheet = spreadsheet_new;
         } else
         {
             spreadsheet = spreadsheet_ichiro;

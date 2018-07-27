@@ -62,6 +62,7 @@
      <Compile Include="Assets\Scripts\Relationship.cs" />
      <Compile Include="Assets\Scripts\RelationshipsPanelController.cs" />
      <Compile Include="Assets\Scripts\SpecialEventsLocation.cs" />
+     <Compile Include="Assets\Scripts\TokenInterpreter.cs" />
      <Compile Include="Assets\Scripts\Unlockable.cs" />
      <Compile Include="Assets\Scripts\WorldManager.cs" />
      <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01.cs" />
@@ -119,10 +120,10 @@
      <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\LiberationSans - OFL.txt" />
      <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Bangers - OFL.txt" />
  <Reference Include="UnityEditor.StandardEvents">
- <HintPath>C:/Users/vuxua/Documents/LastNightMeta2/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
+ <HintPath>C:/Users/vuxua/Documents/GitHub/Metagame_Version2/LastNightMeta2/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
  </Reference>
  <Reference Include="Unity.PackageManagerUI.Editor">
- <HintPath>C:/Users/vuxua/Documents/LastNightMeta2/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+ <HintPath>C:/Users/vuxua/Documents/GitHub/Metagame_Version2/LastNightMeta2/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>D:/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -320,10 +321,10 @@
  <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll</HintPath>
  </Reference>
  <Reference Include="TextMeshPro-2017.3-Editor">
- <HintPath>C:/Users/vuxua/Documents/LastNightMeta2/Assets/TextMesh Pro/Plugins/Editor DLL/TextMeshPro-2017.3-Editor.dll</HintPath>
+ <HintPath>C:/Users/vuxua/Documents/GitHub/Metagame_Version2/LastNightMeta2/Assets/TextMesh Pro/Plugins/Editor DLL/TextMeshPro-2017.3-Editor.dll</HintPath>
  </Reference>
  <Reference Include="TextMeshPro-2017.3-Runtime">
- <HintPath>C:/Users/vuxua/Documents/LastNightMeta2/Assets/TextMesh Pro/Plugins/Editor DLL/TextMeshPro-2017.3-Runtime.dll</HintPath>
+ <HintPath>C:/Users/vuxua/Documents/GitHub/Metagame_Version2/LastNightMeta2/Assets/TextMesh Pro/Plugins/Editor DLL/TextMeshPro-2017.3-Runtime.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Analytics">
  <HintPath>C:/Users/vuxua/AppData/Local/Unity/cache/packages/packages.unity.com/com.unity.analytics@2.0.16/UnityEngine.Analytics.dll</HintPath>

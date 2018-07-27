@@ -162,6 +162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90eedea04f7aa064389c5a45f030d2d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  unlockCondition: 
   activityText: {fileID: 114488333901100396}
   costText: {fileID: 114973763499069200}
   outcomeText: {fileID: 114621635044415678}
@@ -228,7 +229,7 @@ MonoBehaviour:
     m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Take a one-on-one Salsa class
@@ -277,11 +278,11 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 40
-    m_Alignment: 3
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: Go to Salsa Nueva class.
 --- !u!114 &114947444350692176

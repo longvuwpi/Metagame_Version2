@@ -16,6 +16,9 @@ public class PlayerManager : MonoBehaviour {
     Dictionary<string, Vector2> multipliers;
     public TextMeshProUGUI statsText, resourcesText, multiplierText;
 
+    //For tokens used in conditional activities
+    Dictionary<string, int> tokens;
+
 	// Use this for initialization
 	void Start () {
         playerResources = new Dictionary<string, Vector2>();
@@ -23,6 +26,8 @@ public class PlayerManager : MonoBehaviour {
         relationships = new Dictionary<string, int>();
 
         multipliers = new Dictionary<string, Vector2>();
+
+        tokens = new Dictionary<string, int>();
 
         playerResources.Add("Money", new Vector2(50, 0));
         playerResources.Add("Rest", new Vector2(100, 100));
@@ -38,17 +43,11 @@ public class PlayerManager : MonoBehaviour {
         multipliers.Add("Salsa", new Vector2(1, 0));
         multipliers.Add("Culture", new Vector2(1, 0));
 
-        relationships.Add("Autumn", 0);
-        relationships.Add("Drew", 10);
-        relationships.Add("Celestina", 10);
-        relationships.Add("Lhakpa", 10);
-        relationships.Add("Caoimhe", 10);
-        relationships.Add("Margot", 10);
-        multipliers.Add("Autumn", new Vector2(1, 0));
+        relationships.Add("Drew", 0);
+        relationships.Add("Lhakpa", 0);
+        relationships.Add("Margot", 0);
         multipliers.Add("Drew", new Vector2(1, 0));
-        multipliers.Add("Celestina", new Vector2(1, 0));
         multipliers.Add("Lhakpa", new Vector2(1, 0));
-        multipliers.Add("Caoimhe", new Vector2(1, 0));
         multipliers.Add("Margot", new Vector2(1, 0));
         FindObjectOfType<RelationshipsPanelController>().PopulateRelationships();
 
@@ -111,6 +110,14 @@ public class PlayerManager : MonoBehaviour {
             }
         }
 
+        if (tokens.Count > 0)
+        {
+            foreach (string token in tokens.Keys)
+            {
+                multiplierString += TokenInterpreter.GetInstance().GetConditionMetString(token);
+            }
+        }
+
         statsText.text = statsString;
         resourcesText.text = resourcesString;
         multiplierText.text = multiplierString;
@@ -156,32 +163,38 @@ public class PlayerManager : MonoBehaviour {
             foreach (string condition in conditionsSplit)
             {
                 bool eachResult = false;
-                string[] conditionSplit = condition.Split(new[] { ">=" }, StringSplitOptions.None);
-                string conditionAttribute = conditionSplit[0];
-                int conditionValue = int.Parse(conditionSplit[1]);
+                if (condition.Contains(">="))
+                {
+                    string[] conditionSplit = condition.Split(new[] { ">=" }, StringSplitOptions.None);
+                    string conditionAttribute = conditionSplit[0];
+                    int conditionValue = int.Parse(conditionSplit[1]);
 
-                if (conditionAttribute.Equals("Day"))
-                {
-                    eachResult = (FindObjectOfType<GameManager>().GetCurrentDay() > conditionValue);
-                }
-                else if (conditionAttribute.Contains("AnyRelationship"))
-                {
-                    foreach (int value in relationships.Values)
+                    if (conditionAttribute.Equals("Day"))
                     {
-                        eachResult = eachResult || (value >= conditionValue);
+                        eachResult = (FindObjectOfType<GameManager>().GetCurrentDay() > conditionValue);
                     }
-                }
-                else if (playerStats.ContainsKey(conditionAttribute))
+                    else if (conditionAttribute.Contains("AnyRelationship"))
+                    {
+                        foreach (int value in relationships.Values)
+                        {
+                            eachResult = eachResult || (value >= conditionValue);
+                        }
+                    }
+                    else if (playerStats.ContainsKey(conditionAttribute))
+                    {
+                        eachResult = playerStats[conditionAttribute].x >= conditionValue;
+                    }
+                    else if (playerResources.ContainsKey(conditionAttribute))
+                    {
+                        eachResult = playerResources[conditionAttribute].x >= conditionValue;
+                    }
+                    else if (relationships.ContainsKey(conditionAttribute))
+                    {
+                        eachResult = relationships[conditionAttribute] >= conditionValue;
+                    }
+                } else
                 {
-                    eachResult = playerStats[conditionAttribute].x >= conditionValue;
-                }
-                else if (playerResources.ContainsKey(conditionAttribute))
-                {
-                    eachResult = playerResources[conditionAttribute].x >= conditionValue;
-                }
-                else if (relationships.ContainsKey(conditionAttribute))
-                {
-                    eachResult = relationships[conditionAttribute] >= conditionValue;
+                    eachResult = tokens.ContainsKey(condition);
                 }
 
                 result = result && eachResult;
@@ -222,9 +235,35 @@ public class PlayerManager : MonoBehaviour {
         }
     }
 
+    public void decreaseTokenDuration()
+    {
+        if (tokens.Count > 0)
+        {
+            List<string> keys = new List<string>(tokens.Keys);
+            foreach (string token in keys)
+            {
+                if (tokens[token] > 1)
+                {
+                    tokens[token] -= 1;
+                }
+                else
+                {
+                    tokens.Remove(token);
+                }
+            }
+        }
+    }
+
     // apply the costs and mechanical outcomes of the activity
     public void applyChanges(Activity activity)
     {
+        if (activity.isConditional())
+        {
+            string[] tokenSplit = activity.accessibilityCondition.Split(':');
+
+            tokens.Remove(tokenSplit[0]);
+        }
+
         string costs = activity.costs;
         string gains = activity.mechanicalOutcomes;
         string[] costSplit = costs.Split(null);
@@ -244,16 +283,31 @@ public class PlayerManager : MonoBehaviour {
         {
             foreach (string gain in gainSplit)
             {
-                if (gain.Contains("Gains*"))
+                if (!gain.Contains("+"))
                 {
-                    string[] multiplierSplit = gain.Split(new[] { "Gains*" }, StringSplitOptions.None);
-                    string multiplierAttribute = multiplierSplit[0];
-                    string[] multiplierValueSplit = multiplierSplit[1].Split(':');
-                    Vector2 multiplierValue = new Vector2(int.Parse(multiplierValueSplit[0]), int.Parse(multiplierValueSplit[1]));
-                    
-                    if (multipliers.ContainsKey(multiplierAttribute))
+                    if (gain.Contains("Gains*"))
                     {
-                        multipliers[multiplierAttribute] = multiplierValue;
+                        string[] multiplierSplit = gain.Split(new[] { "Gains*" }, StringSplitOptions.None);
+                        string multiplierAttribute = multiplierSplit[0];
+                        string[] multiplierValueSplit = multiplierSplit[1].Split(':');
+                        Vector2 multiplierValue = new Vector2(int.Parse(multiplierValueSplit[0]), int.Parse(multiplierValueSplit[1]));
+
+                        if (multipliers.ContainsKey(multiplierAttribute))
+                        {
+                            multipliers[multiplierAttribute] = multiplierValue;
+                        }
+                    } else
+                    {
+                        string[] tokenSplit = gain.Split(':');
+                        if (tokens.ContainsKey(tokenSplit[0]))
+                        {
+                            tokens[tokenSplit[0]] = int.Parse(tokenSplit[1]);
+                        }
+                        else
+                        {
+                            tokens.Add(tokenSplit[0], int.Parse(tokenSplit[1]));
+                        }
+                        FindObjectOfType<PopUpController>().AddNotification(TokenInterpreter.GetInstance().GetConditionMetString(tokenSplit[0]));
                     }
                 }
                 else
@@ -261,9 +315,25 @@ public class PlayerManager : MonoBehaviour {
                     string[] eachGainSplit = gain.Split('+');
                     string gainAttribute = eachGainSplit[0];
                     int gainValue = int.Parse(eachGainSplit[1]);
-                    gainValue *= getMultiplier(gainAttribute);
 
-                    if (playerStats.ContainsKey(gainAttribute))
+                    if (gainAttribute != "Relationships")
+                    {
+                        gainValue *= getMultiplier(gainAttribute);
+                    }
+
+                    if (gainAttribute.Equals("Relationships"))
+                    {
+                        List<string> keys = new List<string>(relationships.Keys);
+
+                        foreach (string relationship in keys)
+                        {
+                            relationships[relationship] += gainValue;
+                            if (relationships[relationship] > 100)
+                            {
+                                relationships[relationship] = 100;
+                            }
+                        }
+                    } else if (playerStats.ContainsKey(gainAttribute))
                     {
                         playerStats[gainAttribute] += new Vector2(gainValue, 0);
                     }

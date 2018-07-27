@@ -49,6 +49,7 @@ public class GameManager : MonoBehaviour {
     public void IncreaseTime()
     {
         FindObjectOfType<PlayerManager>().decreaseMultiplierDuration();
+        FindObjectOfType<PlayerManager>().decreaseTokenDuration();
 
         currentTimeFrame++;
         if (currentTimeFrame > 3)

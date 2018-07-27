@@ -10,9 +10,12 @@ public class SpecialEventsLocation : Location {
     void Update()
     {
         string target = "";
-        foreach (Activity activity in GetAvailableActivities())
+        foreach (Activity activity in GetUnlockedActivities())
         {
-            target += activity.activity + "\n";
+            if (activity.isAvailable())
+            {
+                target += activity.activity + "\n";
+            }
         }
 
         availableEventsText.text = target;

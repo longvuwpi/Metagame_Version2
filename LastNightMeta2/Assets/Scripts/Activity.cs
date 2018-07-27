@@ -7,7 +7,6 @@ using UnityEngine.UI;
 // Each activity is an Unlockable. Attached to each Activity object
 public class Activity : Unlockable {
     public Text activityText, costText, outcomeText,availabilityText;
-    //Availability text only says "Unavailable". Attribute name is somewhat misleading.
 
     [System.NonSerialized] public string activity;
     [System.NonSerialized] public string location;
@@ -16,6 +15,7 @@ public class Activity : Unlockable {
     [System.NonSerialized] public string mechanicalOutcomes;
     [System.NonSerialized] List<bool> availability;
     [System.NonSerialized] Color unavailableColor = new Color(0.3725f, 0.2f, 0.2235f);
+    [System.NonSerialized] bool conditional = false;
 
     // Use this for initialization
     void Start () {
@@ -24,17 +24,32 @@ public class Activity : Unlockable {
 	
 	// Update is called once per frame
 	void Update () {
-        // If it's accessible and available at the current time frame, 
-		if (isAccessible() && isAvailable())
+        // If it's accessible
+		if (isAvailable())
         {
-            // Disable the "Unavailable" text, set card to white
-            availabilityText.gameObject.SetActive(false);
-            GetComponent<Image>().color = Color.white;
+            if (isAccessible())
+            {
+                // Disable the "Unavailable" text, set card to white
+                availabilityText.gameObject.SetActive(false);
+                GetComponent<Image>().color = Color.white;
+            } else
+            {
+                availabilityText.gameObject.SetActive(true);
+                GetComponent<Image>().color = unavailableColor;
+                if (conditional)
+                {
+                    availabilityText.text = TokenInterpreter.GetInstance().GetConditionUnmetString(accessibilityCondition);
+                } else
+                {
+                    availabilityText.text = "Need " + accessibilityCondition;
+                }
+            }
         } else
         {
             // else, card is unavailable
             availabilityText.gameObject.SetActive(true);
             GetComponent<Image>().color = unavailableColor;
+            availabilityText.text = "Not available at this time";
         }
 	}
 
@@ -64,7 +79,10 @@ public class Activity : Unlockable {
             }
         }
 
-        //Debug.Log(availability.Count);
+        if (!accessibilityCondition.Contains(">="))
+        {
+            conditional = true;
+        }
 
         activityText.text = activity;
         costText.text = "Costs: " + costs;
@@ -78,6 +96,11 @@ public class Activity : Unlockable {
     public bool isAccessible()
     {
         return FindObjectOfType<PlayerManager>().checkAccessibility(this);
+    }
+
+    public bool isConditional()
+    {
+        return conditional;
     }
 
     // Check if this activity is available at the current time frame

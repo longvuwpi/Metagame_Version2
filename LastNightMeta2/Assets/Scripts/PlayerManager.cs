@@ -38,10 +38,10 @@ public class PlayerManager : MonoBehaviour {
 
         playerStats.Add("Plot", new Vector2(0, 10));
         playerStats.Add("Salsa", new Vector2(0, 50));
-        playerStats.Add("Culture", new Vector2(0, 20));
+       // playerStats.Add("Culture", new Vector2(0, 20));
         multipliers.Add("Plot", new Vector2(1, 0));
         multipliers.Add("Salsa", new Vector2(1, 0));
-        multipliers.Add("Culture", new Vector2(1, 0));
+        //multipliers.Add("Culture", new Vector2(1, 0));
 
         relationships.Add("Drew", 0);
         relationships.Add("Lhakpa", 0);
@@ -105,7 +105,7 @@ public class PlayerManager : MonoBehaviour {
             string eachMultiplier = "";
             if (multiplier.Value.y > 0)
             {
-                eachMultiplier = multiplier.Key + "gains x" + multiplier.Value.x.ToString() + " for " + multiplier.Value.y.ToString() + " time slots";
+                eachMultiplier = "\n" + multiplier.Key + " gains x" + multiplier.Value.x.ToString() + " for " + multiplier.Value.y.ToString() + " time slots";
                 multiplierString += eachMultiplier;
             }
         }
@@ -114,7 +114,7 @@ public class PlayerManager : MonoBehaviour {
         {
             foreach (string token in tokens.Keys)
             {
-                multiplierString += TokenInterpreter.GetInstance().GetConditionMetString(token);
+                multiplierString += "\n" + TokenInterpreter.GetInstance().GetConditionMetString(token);
             }
         }
 

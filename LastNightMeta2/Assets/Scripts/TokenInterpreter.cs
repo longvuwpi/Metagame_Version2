@@ -8,13 +8,13 @@ public class TokenInterpreter {
     List<string> tokenConditionUnmet = new List<string>() { "Can only be done after salsa class",
                                                        "Drew needs to be interested",
                                                        "Lhakpa needs to be interested",
-                                                       "Margot needs to interested",
+                                                       "Margot needs to be interested",
                                                        "Your fridge needs to be stocked"};
     List<string> tokenConditionMet = new List<string>() { "You can do activities after salsa class",
                                                           "Drew is interested in hanging out",
                                                           "Lhakpa is interested in hanging out",
                                                           "Margot is interested in hanging out",
-                                                          "You can cook some fancy dinner now"
+                                                          "Your fridge is stocked"
     };
 
     static TokenInterpreter Instance;

@@ -10,7 +10,7 @@ public class SpecialEventsLocation : Location {
     void Update()
     {
         string target = "";
-        foreach (Activity activity in GetUnlockedActivities())
+        foreach (Activity activity in GetUnlockedUnhiddenActivities())
         {
             if (activity.isAvailable())
             {

@@ -35,9 +35,17 @@ public class GameManager : MonoBehaviour {
         timeText.text = "Day " + currentDay.ToString() + " of " + totalDays.ToString() + " - " + days[currentDayOfWeek] + " " + timeFrames[currentTimeFrame];
 	}
 
-    public int GetCurrentTimeFrame()
+    public int GetCurrentAvailabilitySlot()
     {
         return (currentDayOfWeek * 4 + currentTimeFrame);
+    }
+
+    public string GetTimeString(int availabilitySlot)
+    {
+        int day = Mathf.FloorToInt(availabilitySlot / 4);
+        int timeFrame = availabilitySlot - (day * 4);
+
+        return (days[day] + " " + timeFrames[timeFrame]);
     }
 
     public int GetCurrentDay()

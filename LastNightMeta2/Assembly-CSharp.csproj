@@ -54,6 +54,7 @@
      <Compile Include="Assets\Scripts\ActivitiesController.cs" />
      <Compile Include="Assets\Scripts\Activity.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\HillPeopleTokenInterpreter.cs" />
      <Compile Include="Assets\Scripts\Location.cs" />
      <Compile Include="Assets\Scripts\Neighborhood.cs" />
      <Compile Include="Assets\Scripts\NewTag.cs" />

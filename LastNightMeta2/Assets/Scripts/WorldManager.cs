@@ -22,6 +22,7 @@ public class WorldManager : MonoBehaviour {
     string spreadsheet_primary = "https://docs.google.com/spreadsheets/d/1VO0ETqqW03WUyQsbS5gwJcpyELVSgZ0qz7JuGqfVTh0/export?format=csv&gid=";
     string spreadsheet_new = "https://docs.google.com/spreadsheets/d/1Y8yyIOYjkCv6R-TGaAHU85d-J1VBes0gKGYdbXCldyI/export?format=csv&gid=";
     string spreadsheet_ichiro = "https://docs.google.com/spreadsheets/d/15afgZ3kx4NzncckWuEOtIY8cUNWiWRihqsbKZagSYS0/export?format=csv&gid=";
+    string spreadsheet_hillqueen = "https://docs.google.com/spreadsheets/d/1G33taEH2jayLIpM6-soOe514F2U3AaJYvE0GZNjJOgg/export?format=csv&gid=";
     string neighborhood_gid = "742526018";
     string location_gid = "1254739945";
     string activities_gid = "0";
@@ -54,8 +55,11 @@ public class WorldManager : MonoBehaviour {
     {
         if (isPrimary)
         {
-            spreadsheet = spreadsheet_new;
-        } else
+            spreadsheet = spreadsheet_hillqueen;
+            FindObjectOfType<PopUpController>().AddNotification("Test1", "mulchtea01");
+            FindObjectOfType<PopUpController>().AddNotification("Test2", "drones01");
+        }
+        else
         {
             spreadsheet = spreadsheet_ichiro;
         }
@@ -275,9 +279,12 @@ public class WorldManager : MonoBehaviour {
             {
                 location.checkUnlockCondition();
 
-                foreach (Activity activity in location.GetActivities())
+                if (location.isUnlocked())
                 {
-                    activity.checkUnlockCondition();
+                    foreach (Activity activity in location.GetActivities())
+                    {
+                        activity.checkUnlockCondition();
+                    }
                 }
             }
         }

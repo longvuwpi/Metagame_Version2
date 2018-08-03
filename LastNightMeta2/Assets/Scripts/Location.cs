@@ -98,13 +98,13 @@ public class Location : Unlockable {
     }
 
     // Get all unlocked activities in this location
-    public List<Activity> GetUnlockedActivities()
+    public List<Activity> GetUnlockedUnhiddenActivities()
     {
         List<Activity> result = new List<Activity>();
 
         foreach (Activity activity in activities)
         {
-            if (activity.isUnlocked())
+            if (activity.isUnlocked() && (!activity.isHidden()))
             {
                 result.Add(activity);
             }

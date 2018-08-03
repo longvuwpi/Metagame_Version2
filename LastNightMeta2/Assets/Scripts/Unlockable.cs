@@ -73,7 +73,7 @@ public class Unlockable: MonoBehaviour {
             }
             else if (gameObject.GetComponent<Activity>() != null)
             {
-                FindObjectOfType<PopUpController>().AddNotification("New activity unlocked: " + gameObject.GetComponent<Activity>().activity);
+                FindObjectOfType<PopUpController>().AddNotification("New activity unlocked in " + gameObject.GetComponent<Activity>().location + ": "+ gameObject.GetComponent<Activity>().activity);
             }
             notificationPushed = true;
         }

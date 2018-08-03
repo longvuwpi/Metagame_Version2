@@ -22,7 +22,7 @@ public class ActivitiesController : MonoBehaviour {
         gameObject.transform.SetAsLastSibling();
 
         // Get all unlocked activities from the location
-        currentActivities = location.GetUnlockedActivities();
+        currentActivities = location.GetUnlockedUnhiddenActivities();
 
         Debug.Log(currentActivities.Count + " current activities");
         for (int i = 0; i < currentActivities.Count; i++)

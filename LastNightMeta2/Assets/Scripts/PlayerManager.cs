@@ -24,7 +24,7 @@ public class PlayerManager : MonoBehaviour {
     Dictionary<string, int> tokens;
 
     //Used with the Hill Queen spreadsheet
-    HillPeopleTokenInterpreter tokenInterpreter = HillPeopleTokenInterpreter.GetInstance();
+    //HillPeopleTokenInterpreter tokenInterpreter = HillPeopleTokenInterpreter.GetInstance();
 
     // Use this for initialization in Primary Metadata
     //void Start()
@@ -77,32 +77,35 @@ public class PlayerManager : MonoBehaviour {
 
         tokens = new Dictionary<string, int>();
 
-        playerResources.Add("Mulch", new Vector2(50, 0));
         playerResources.Add("Rest", new Vector2(100, 100));
-        multipliers.Add("Mulch", new Vector2(1, 0));
+        playerResources.Add("Fruits", new Vector2(0, 0));
+        playerResources.Add("Meats", new Vector2(0, 0));
         multipliers.Add("Rest", new Vector2(1, 0));
+        multipliers.Add("Fruits", new Vector2(1, 0));
+        multipliers.Add("Meats", new Vector2(1, 0));
 
-        playerStats.Add("Diplomacy", new Vector2(0, 100));
-        playerStats.Add("Respect", new Vector2(0, 100));
-        multipliers.Add("Diplomacy", new Vector2(1, 0));
-        multipliers.Add("Respect", new Vector2(1, 0));
+        playerStats.Add("Culture", new Vector2(0, 100));
+        playerStats.Add("Ritual", new Vector2(0, 100));
+        multipliers.Add("Culture", new Vector2(1, 0));
+        multipliers.Add("Ritual", new Vector2(1, 0));
 
-        relationships.Add("Queen", 0);
-        multipliers.Add("Queen", new Vector2(1, 0));
+        relationships.Add("Hound", 0);
+        relationships.Add("Acolyte", 0);
+        multipliers.Add("Hound", new Vector2(1, 0));
+        multipliers.Add("Acolyte", new Vector2(1, 0));
 
-        hiddenVariables.Add("HiddenDroneTea", 0);
-        hiddenVariables.Add("HiddenCleanTunnels", 0);
-        hiddenVariables.Add("HiddenFeedGrubs", 0);
-        hiddenVariables.Add("HiddenDroneTalk", 0);
-        hiddenVariables.Add("HiddenMeetElders", 0);
-        hiddenVariables.Add("HiddenFeedElders", 0);
-        hiddenVariables.Add("HiddenPheromones", 0);
-        hiddenVariables.Add("HiddenGrubHunt", 0);
-        hiddenVariables.Add("HiddenWalk", 0);
+        hiddenVariables.Add("Gatherer", 0);
+        hiddenVariables.Add("Hunter", 0);
+        hiddenVariables.Add("Hound", 0);
+        hiddenVariables.Add("Acolyte", 0);
+        hiddenVariables.Add("MetAcolyte", 0);
+        hiddenVariables.Add("HasHunted", 0);
+        hiddenVariables.Add("HasGathered", 0);
+        hiddenVariables.Add("Endgame", 0);
 
-        tokens.Add("FridgeStocked", 0);
-        tokens.Add("AfterNegotiations", 0);
-        tokens.Add("DroneInterest", 0);
+        //tokens.Add("FridgeStocked", 0);
+        //tokens.Add("AfterNegotiations", 0);
+        //tokens.Add("DroneInterest", 0);
 
         FindObjectOfType<RelationshipsPanelController>().PopulateRelationships();
 
@@ -289,7 +292,7 @@ public class PlayerManager : MonoBehaviour {
 
     public bool checkHiddenCondition(Activity activity)
     {
-        string conditions = activity.hiddenCondition;
+        string conditions = activity.hideCondition;
 
         if (conditions.Equals(""))
         {
@@ -461,7 +464,7 @@ public class PlayerManager : MonoBehaviour {
                         {
                             tokens.Add(tokenSplit[0], int.Parse(tokenSplit[1]));
                         }
-                        FindObjectOfType<PopUpController>().AddNotification(tokenInterpreter.GetConditionMetString(tokenSplit[0]));
+                        //FindObjectOfType<PopUpController>().AddNotification(tokenInterpreter.GetConditionMetString(tokenSplit[0]));
                     }
                 }
                 else

@@ -11,20 +11,20 @@ public class Activity : Unlockable {
     public TextMeshProUGUI availabilityText;
 
     [System.NonSerialized] public string activity;
+    [System.NonSerialized] List<bool> availability;
     [System.NonSerialized] public string location;
     [System.NonSerialized] public string accessibilityCondition;
     [System.NonSerialized] public string costs;
     [System.NonSerialized] public string mechanicalOutcomes;
-    [System.NonSerialized] List<bool> availability;
-    [System.NonSerialized] string availabilityOverrideText;
-    [System.NonSerialized] string outcomeOverrideText;
-    [System.NonSerialized] string popUpText;
-    [System.NonSerialized] string popUpPicture;
-    [System.NonSerialized] public string hiddenCondition;
+    [System.NonSerialized] string lockedOverrideMessage;
+    [System.NonSerialized] public string hideCondition;
+    [System.NonSerialized] string revealOverrideMessage;
+    [System.NonSerialized] string notAccessibleOverrideText;
+    [System.NonSerialized] string outcomeOverrideMessage;
+    [System.NonSerialized] string popUpMessage;
+    [System.NonSerialized] string popUpImage;
     [System.NonSerialized] Color unavailableColor = new Color(0.3725f, 0.2f, 0.2235f);
-    [System.NonSerialized] bool requireToken = false;
     [System.NonSerialized] bool hidden = false;
-    HillPeopleTokenInterpreter tokenInterpreter = HillPeopleTokenInterpreter.GetInstance();
 
     // Use this for initialization
     void Start () {
@@ -52,9 +52,9 @@ public class Activity : Unlockable {
             {
                 //availabilityText.gameObject.SetActive(true);
                 GetComponent<Image>().color = unavailableColor;
-                if (requireToken)
+                if (!notAccessibleOverrideText.Equals(""))
                 {
-                    availabilityText.text = HillPeopleTokenInterpreter.GetInstance().GetConditionString(accessibilityCondition);
+                    availabilityText.text = notAccessibleOverrideText;
                 } else
                 {
                     availabilityText.text = "Accessible when " + accessibilityCondition;
@@ -76,15 +76,15 @@ public class Activity : Unlockable {
         int length = contentSplit.Length;
 
         activity = contentSplit[0].Trim();
-        location = contentSplit[1].Trim();
-        unlockCondition = contentSplit[2].Trim();
-        accessibilityCondition = contentSplit[3].Trim();
-        costs = contentSplit[4].Trim();
-        mechanicalOutcomes = contentSplit[5].Trim();
+        
+        //
+        //accessibilityCondition = contentSplit[3].Trim();
+        //
+        //mechanicalOutcomes = contentSplit[5].Trim();
 
         availability = new List<bool>();
 
-        for (int i = 6; i <= 33; i++)
+        for (int i = 1; i <= 3; i++)
         {
             if (contentSplit[i].Trim().Equals("0"))
             {
@@ -95,13 +95,29 @@ public class Activity : Unlockable {
             }
         }
 
-        requireToken = tokenInterpreter.DoesRequireToken(accessibilityCondition);
+        location = contentSplit[4].Trim();
 
-        availabilityOverrideText = contentSplit[34].Trim();
-        outcomeOverrideText = contentSplit[35].Trim();
-        popUpText = contentSplit[36].Trim();
-        popUpPicture = contentSplit[37].Trim();
-        hiddenCondition = contentSplit[38].Trim();
+        unlockCondition = contentSplit[5].Trim();
+
+        lockedOverrideMessage = contentSplit[6].Trim();
+
+        hideCondition = contentSplit[7].Trim();
+
+        revealOverrideMessage = contentSplit[8].Trim();
+
+        accessibilityCondition = contentSplit[9].Trim();
+
+        notAccessibleOverrideText = contentSplit[10].Trim();
+
+        costs = contentSplit[11].Trim();
+
+        mechanicalOutcomes = contentSplit[12].Trim();
+
+        outcomeOverrideMessage = contentSplit[13].Trim();
+
+        popUpMessage = contentSplit[14].Trim();
+
+        popUpImage = contentSplit[15].Trim();
 
         activityText.text = activity;
         costText.text = "Costs: " + costs;
@@ -119,7 +135,7 @@ public class Activity : Unlockable {
 
     public bool doesRequireToken()
     {
-        return requireToken;
+        return false;
     }
 
     // Check if this activity is available at the current time frame
@@ -139,9 +155,9 @@ public class Activity : Unlockable {
     // get the nearest time frame that the activity will be come available (if isAvailable is true) or unavailable (if isAvailable is false)
     string GetNearestAvailable(bool isAvailable)
     {
-        if (!availabilityOverrideText.Equals(""))
+        if (!notAccessibleOverrideText.Equals(""))
         {
-            return availabilityOverrideText;
+            return notAccessibleOverrideText;
         }
 
         string result = "";
@@ -189,9 +205,9 @@ public class Activity : Unlockable {
         // If the activity is accessible, available, and player has enough resource to pay for it
         if (isAccessible() && isAvailable() && playerManager.checkCost(this))
         {
-            if (!popUpText.Equals(""))
+            if (!popUpMessage.Equals(""))
             {
-                FindObjectOfType<PopUpController>().AddNotification(popUpText, popUpPicture);
+                FindObjectOfType<PopUpController>().AddNotification(popUpMessage, popUpImage);
             }
 
             // To next time frame

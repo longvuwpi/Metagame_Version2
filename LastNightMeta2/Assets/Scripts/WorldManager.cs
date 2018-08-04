@@ -19,15 +19,15 @@ public class WorldManager : MonoBehaviour {
     public GameObject spreadsheetSelection;
     public SpecialEventsLocation specialEvents;
 
-    string spreadsheet_primary = "https://docs.google.com/spreadsheets/d/1VO0ETqqW03WUyQsbS5gwJcpyELVSgZ0qz7JuGqfVTh0/export?format=csv&gid=";
-    string spreadsheet_new = "https://docs.google.com/spreadsheets/d/1Y8yyIOYjkCv6R-TGaAHU85d-J1VBes0gKGYdbXCldyI/export?format=csv&gid=";
-    string spreadsheet_ichiro = "https://docs.google.com/spreadsheets/d/15afgZ3kx4NzncckWuEOtIY8cUNWiWRihqsbKZagSYS0/export?format=csv&gid=";
-    string spreadsheet_hillqueen = "https://docs.google.com/spreadsheets/d/1G33taEH2jayLIpM6-soOe514F2U3AaJYvE0GZNjJOgg/export?format=csv&gid=";
+    //string spreadsheet_primary = "https://docs.google.com/spreadsheets/d/1VO0ETqqW03WUyQsbS5gwJcpyELVSgZ0qz7JuGqfVTh0/export?format=csv&gid=";
+    //string spreadsheet_new = "https://docs.google.com/spreadsheets/d/1Y8yyIOYjkCv6R-TGaAHU85d-J1VBes0gKGYdbXCldyI/export?format=csv&gid=";
+    //string spreadsheet_ichiro = "https://docs.google.com/spreadsheets/d/15afgZ3kx4NzncckWuEOtIY8cUNWiWRihqsbKZagSYS0/export?format=csv&gid=";
+    //string spreadsheet_hillqueen = "https://docs.google.com/spreadsheets/d/1G33taEH2jayLIpM6-soOe514F2U3AaJYvE0GZNjJOgg/export?format=csv&gid=";
+    string spreadsheet = "https://docs.google.com/spreadsheets/d/15FbNeoNZ8xqDQSXvLu6XurDUx-_9-NJkwArwi3EWT3U/export?format=csv&gid=";
     string neighborhood_gid = "742526018";
     string location_gid = "1254739945";
     string activities_gid = "0";
-    bool spreadsheet_selected = false;
-    string spreadsheet;
+    bool spreadsheet_selected = true;
 
     Dictionary<Vector2, Neighborhood> neighborhoodMap;
     Vector2 currentNeighborhoodPosition;
@@ -51,22 +51,22 @@ public class WorldManager : MonoBehaviour {
 	}
 	
     //Determine which spreadsheet is used. Primary Metadata button and Ichiro Metadata button will call this
-    public void SpreadsheetSelected(bool isPrimary)
-    {
-        if (isPrimary)
-        {
-            spreadsheet = spreadsheet_hillqueen;
-            FindObjectOfType<PopUpController>().AddNotification("Test1", "mulchtea01");
-            FindObjectOfType<PopUpController>().AddNotification("Test2", "drones01");
-        }
-        else
-        {
-            spreadsheet = spreadsheet_ichiro;
-        }
+    //public void SpreadsheetSelected(bool isPrimary)
+    //{
+    //    if (isPrimary)
+    //    {
+    //        spreadsheet = spreadsheet_hillqueen;
+    //        FindObjectOfType<PopUpController>().AddNotification("Test1", "mulchtea01");
+    //        FindObjectOfType<PopUpController>().AddNotification("Test2", "drones01");
+    //    }
+    //    else
+    //    {
+    //        spreadsheet = spreadsheet_ichiro;
+    //    }
 
-        spreadsheet_selected = true;
-        Destroy(spreadsheetSelection);
-    }
+    //    spreadsheet_selected = true;
+    //    Destroy(spreadsheetSelection);
+    //}
 
     // Pull neighborhoods
     IEnumerator GrabNeighborhoods()
@@ -194,8 +194,8 @@ public class WorldManager : MonoBehaviour {
         string[] dataSplit = fileBody.Split('\n');
         List<string> activities = new List<string>(dataSplit);
         
-        // Remove the header lines
-        activities.RemoveRange(0, 29);
+        //// Remove the header lines
+        //activities.RemoveRange(0, 29);
 
         // For each line, create a new activity object, set the activity content
         foreach (string activity_string in activities)

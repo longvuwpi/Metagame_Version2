@@ -12,12 +12,15 @@ public class Location : Unlockable {
     Vector2 coordinates;
     string locationName;
     string neighborhoodName;
+    string hideCondition;
+
+    bool hidden;
 
     // All activities in this location
     protected List<Activity> activities = new List<Activity>();
 
     // Set the content of this location component
-    public void setLocation(string location_Name, string neighborhood_Name, Vector2 vector_coordinates, string unlock_condition)
+    public void setLocation(string location_Name, string neighborhood_Name, Vector2 vector_coordinates, string unlock_condition, string hide_condition)
     {
         locationName = location_Name;
         neighborhoodName = neighborhood_Name;
@@ -27,6 +30,8 @@ public class Location : Unlockable {
         gameObject.transform.localPosition = new Vector2(transform.parent.GetComponent<RectTransform>().rect.width * coordinates.x / 2, transform.parent.GetComponent<RectTransform>().rect.height * coordinates.y / 2);
 
         unlockCondition = unlock_condition;
+
+        hideCondition = hide_condition;
 
         SetUnlockedOnCreate();
     }
@@ -40,6 +45,13 @@ public class Location : Unlockable {
     void Update () {
 
 	}
+
+    public bool isHidden()
+    {
+        hidden = FindObjectOfType<PlayerManager>().checkHiddenCondition(hideCondition);
+
+        return hidden;
+    }
 
     // When this location is clicked
     public void LocationClicked()

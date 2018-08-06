@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour {
     public GameObject NewTag;
 
     List<string> days = new List<string>() { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-    List<string> timeFrames = new List<string>() { "Morning", "Afternoon", "Evening", "Night" };
+    List<string> timeFrames = new List<string>() { "Morning", "Afternoon", "Night" };
     int currentDayOfWeek = 0;
     int currentDay = 1;
     int currentTimeFrame = 0;
@@ -37,7 +37,8 @@ public class GameManager : MonoBehaviour {
 
     public int GetCurrentAvailabilitySlot()
     {
-        return (currentDayOfWeek * 4 + currentTimeFrame);
+        //return (currentDayOfWeek * 4 + currentTimeFrame);
+        return currentTimeFrame;    
     }
 
     public string GetTimeString(int availabilitySlot)
@@ -60,7 +61,7 @@ public class GameManager : MonoBehaviour {
         FindObjectOfType<PlayerManager>().decreaseTokenDuration();
 
         currentTimeFrame++;
-        if (currentTimeFrame > 3)
+        if (currentTimeFrame > 2)
         {
             currentTimeFrame = 0;
             currentDay++;
@@ -80,9 +81,6 @@ public class GameManager : MonoBehaviour {
                 StartCoroutine(TurnAfternoon());
                 break;
             case 2:
-                StartCoroutine(TurnEvening());
-                break;
-            case 3:
                 StartCoroutine(TurnNight());
                 break;
         }
@@ -139,12 +137,14 @@ public class GameManager : MonoBehaviour {
         float perc = 0;
         while (perc <= 1)
         {
-            nightMask.color = Color.Lerp(eveningColor, nightColor, perc);
+            nightMask.color = Color.Lerp(notVisible, nightColor, perc);
+            dayMask.color = Color.Lerp(afternoonColor, notVisible, perc);
             perc += 0.05f;
             yield return null;
         }
 
         nightMask.color = nightColor;
+        dayMask.color = notVisible;
     }
 
 }

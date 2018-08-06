@@ -45,9 +45,12 @@ public class Neighborhood: Unlockable {
         {
             foreach(Location location in locations)
             {
-                if (location.isUnlocked())
+                if (location.isUnlocked() && (!location.isHidden()))
                 {
                     location.gameObject.SetActive(true);
+                } else
+                {
+                    location.gameObject.SetActive(false);
                 }
             }
         }

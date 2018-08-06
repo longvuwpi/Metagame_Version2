@@ -114,6 +114,11 @@ public class PlayerManager : MonoBehaviour {
         multiplierText.text = "";
     }
 
+    public bool isHiddenVariable(string variable)
+    {
+        return hiddenVariables.ContainsKey(variable);
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -245,6 +250,10 @@ public class PlayerManager : MonoBehaviour {
                 
                 string[] conditionSplit = condition.Split(new[] { needed_operator }, StringSplitOptions.None);
                 string conditionAttribute = conditionSplit[0];
+                if (conditionSplit.Length == 1)
+                {
+                    Debug.Log("condition is " + conditions);
+                }
                 int conditionValue = int.Parse(conditionSplit[1]);
 
                 if (conditionAttribute.Equals("Day"))
@@ -290,10 +299,8 @@ public class PlayerManager : MonoBehaviour {
     }
 
 
-    public bool checkHiddenCondition(Activity activity)
+    public bool checkHiddenCondition(string conditions)
     {
-        string conditions = activity.hideCondition;
-
         if (conditions.Equals(""))
         {
             return false;
@@ -469,9 +476,42 @@ public class PlayerManager : MonoBehaviour {
                 }
                 else
                 {
-                    string[] eachGainSplit = gain.Split('+');
+                    string[] eachGainSplit = gain.Split(new[] { '+' }, 2);
                     string gainAttribute = eachGainSplit[0];
-                    int gainValue = int.Parse(eachGainSplit[1]);
+                    int gainValue = 0;
+
+                    char needed_operator;
+
+                    if (!eachGainSplit[1].Contains("d"))
+                    {
+                        gainValue = int.Parse(eachGainSplit[1]);
+                    } else
+                    {
+                        string[] diceSplit = eachGainSplit[1].Split('d');
+                        int rollTimes = int.Parse(diceSplit[0]);
+
+                        if (gain.Contains("-"))
+                        {
+                            needed_operator = '-';
+                        }
+                        else
+                        {
+                            needed_operator = '+';
+                        }
+
+                        string[] diceSplit1 = diceSplit[1].Split(new[] { needed_operator }, StringSplitOptions.None);
+                        int splitMax = int.Parse(diceSplit1[0]);
+                        int addOn = (needed_operator.Equals('-')? (-1) : 1) * int.Parse(diceSplit1[1]);
+
+                        System.Random random = new System.Random();
+
+                        for (int i = 1; i <= rollTimes; i++)
+                        {
+                            gainValue += random.Next(1, splitMax + 1);
+                        }
+                        gainValue += addOn;
+
+                    }
 
                     if ((gainAttribute != "Relationships") && (!hiddenVariables.ContainsKey(gainAttribute)))
                     {

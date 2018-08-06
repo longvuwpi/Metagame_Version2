@@ -156,7 +156,8 @@ public class WorldManager : MonoBehaviour {
             string neighborhood_name = contentSplit[1].Trim();
             Vector2 coordinates = new Vector2(float.Parse(contentSplit[2].Trim()), float.Parse(contentSplit[3].Trim()));
             string unlock_condition = contentSplit[4].Trim();
-            newLocation.GetComponent<Location>().setLocation(location_name, neighborhood_name, coordinates, unlock_condition);
+            string hide_condition = contentSplit[6].Trim();
+            newLocation.GetComponent<Location>().setLocation(location_name, neighborhood_name, coordinates, unlock_condition, hide_condition);
 
             // Keep track of all the locations.
             allLocations.Add(newLocation.GetComponent<Location>());
@@ -195,7 +196,7 @@ public class WorldManager : MonoBehaviour {
         List<string> activities = new List<string>(dataSplit);
         
         //// Remove the header lines
-        //activities.RemoveRange(0, 29);
+        activities.RemoveAt(0);
 
         // For each line, create a new activity object, set the activity content
         foreach (string activity_string in activities)

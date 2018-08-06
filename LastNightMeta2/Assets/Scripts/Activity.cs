@@ -120,11 +120,77 @@ public class Activity : Unlockable {
         popUpImage = contentSplit[15].Trim();
 
         activityText.text = activity;
-        costText.text = "Costs: " + costs;
-        outcomeText.text = "Outcomes: " + mechanicalOutcomes;
+        SetCostText();
+        SetOutcomeText();
 
         SetUnlockedOnCreate();
 
+    }
+
+    void SetCostText()
+    {
+
+        costText.text = "Costs: " + costs;
+    }
+
+    void SetOutcomeText()
+    {
+        outcomeText.text = "Outcomes:";
+        string[] outcomeSplit = mechanicalOutcomes.Split(null);
+        foreach (string outcome in outcomeSplit)
+        {
+            if (outcome.Contains("Gains"))
+            {
+                outcomeText.text += " " + outcome;
+            } else
+            {
+                string[] eachOutcome = outcome.Split(new[] { '+' }, 2);
+                if (eachOutcome.Length < 2)
+                {
+                    Debug.Log("short outcome, it's " + outcome);
+                }
+                if (!FindObjectOfType<PlayerManager>().isHiddenVariable(eachOutcome[0])) {
+                    if (!eachOutcome[1].Contains("d"))
+                    {
+                        outcomeText.text += " " + outcome;
+                    } else
+                    {
+                        outcomeText.text += " " + eachOutcome[0] + "+";
+
+                        string[] diceSplit = eachOutcome[1].Split('d');
+                        int rollTimes = int.Parse(diceSplit[0]);
+                        char needed_operator;
+
+                        if (outcome.Contains("-"))
+                        {
+                            needed_operator = '-';
+                        }
+                        else
+                        {
+                            needed_operator = '+';
+                        }
+
+                        string[] diceSplit1 = diceSplit[1].Split(new[] { needed_operator }, StringSplitOptions.None);
+                        int splitMax = int.Parse(diceSplit1[0]);
+                        int addOn = (needed_operator.Equals('-') ? (-1) : 1) * int.Parse(diceSplit1[1]);
+                        int lowest = 0;
+                        int highest = 0;
+
+                        for (int i = 1; i <= rollTimes; i++)
+                        {
+                            lowest += 1;
+                            highest += splitMax;
+                        }
+
+                        lowest += addOn;
+                        highest += addOn;
+
+                        outcomeText.text += " " + lowest + " to " + highest;
+
+                    }
+                }
+            }
+        }
     }
 
     // Check the accessibility condition of this activity
@@ -147,7 +213,7 @@ public class Activity : Unlockable {
 
     public bool isHidden()
     {
-        hidden = FindObjectOfType<PlayerManager>().checkHiddenCondition(this);
+        hidden = FindObjectOfType<PlayerManager>().checkHiddenCondition(hideCondition);
 
         return hidden;
     }

@@ -23,11 +23,19 @@ public class WorldManager : MonoBehaviour {
     //string spreadsheet_new = "https://docs.google.com/spreadsheets/d/1Y8yyIOYjkCv6R-TGaAHU85d-J1VBes0gKGYdbXCldyI/export?format=csv&gid=";
     //string spreadsheet_ichiro = "https://docs.google.com/spreadsheets/d/15afgZ3kx4NzncckWuEOtIY8cUNWiWRihqsbKZagSYS0/export?format=csv&gid=";
     //string spreadsheet_hillqueen = "https://docs.google.com/spreadsheets/d/1G33taEH2jayLIpM6-soOe514F2U3AaJYvE0GZNjJOgg/export?format=csv&gid=";
-    string spreadsheet = "https://docs.google.com/spreadsheets/d/15FbNeoNZ8xqDQSXvLu6XurDUx-_9-NJkwArwi3EWT3U/export?format=csv&gid=";
+
+    // Forgotten mission spreadsheet (last internship completed version)
+    //string spreadsheet = "https://docs.google.com/spreadsheets/d/15FbNeoNZ8xqDQSXvLu6XurDUx-_9-NJkwArwi3EWT3U/export?format=csv&gid=";
+
+    //Forgotten mission spreadsheet (background changing version)
+    string spreadsheet = "https://docs.google.com/spreadsheets/d/1vfOsyJ5aW7s8Kgg1i4BZX7Z6bH062GKdlYFOPz1vqrE/export?format=csv&gid=";
+
     string neighborhood_gid = "742526018";
     string location_gid = "1254739945";
     string activities_gid = "0";
     bool spreadsheet_selected = true;
+    // File extensions for background images. will need to be updated if there are more file types in the Resources/Images/BackgroundImages folder.
+    List<string> fileExtensions = new List<string>() { "jpg", "png", "gif" };
 
     Dictionary<Vector2, Neighborhood> neighborhoodMap;
     Vector2 currentNeighborhoodPosition;
@@ -105,11 +113,12 @@ public class WorldManager : MonoBehaviour {
             int x_coord = int.Parse(contentSplit[1].Trim());
             int y_coord = int.Parse(contentSplit[2].Trim());
             string unlock_condition = contentSplit[3].Trim();
+            string background_name = contentSplit[4].Trim();
 
             Vector2 position = new Vector2(x_coord, y_coord);
             GameObject newNeighborhoodObject = new GameObject();
             newNeighborhoodObject.AddComponent<Neighborhood>();
-            newNeighborhoodObject.GetComponent<Neighborhood>().SetNeighborhood(position, neighbor_name, unlock_condition);
+            newNeighborhoodObject.GetComponent<Neighborhood>().SetNeighborhood(position, neighbor_name, unlock_condition, background_name);
 
             // Add the created neighborhood to the dictionary
             neighborhoodMap.Add(position, newNeighborhoodObject.GetComponent<Neighborhood>());
@@ -233,7 +242,11 @@ public class WorldManager : MonoBehaviour {
         }
     }
 
-    // Move to the neighborhood with the specified (x,y) coordinates
+    /// <summary>
+    /// Move to the neighborhood with the specified (x,y) coordinates
+    /// also sets the correct background image
+    /// </summary>
+    /// <param name="newPosition"></param>
     void SetCurrentNeighborhood(Vector2 newPosition)
     {
         EventSystem.current.SetSelectedGameObject(null);
@@ -253,7 +266,36 @@ public class WorldManager : MonoBehaviour {
         Neighborhood toSet = neighborhoodMap[newPosition];
         string name = toSet.getName();
         neighborhoodTitle.text = name;
-        background.sprite = Resources.Load<Sprite>("Images/" + name);
+
+        string backgroundName = toSet.background;
+        Sprite neededSprite = null;
+
+        if (backgroundName.Equals(""))
+        {
+            backgroundName = name;
+        }
+
+        if (backgroundName.Contains("."))
+        {
+            string[] backgroundSplit = backgroundName.Split('.');
+            neededSprite = Resources.Load<Sprite>("Images/BackgroundImages/" + backgroundSplit[1] + "/" + backgroundSplit[0]);
+            backgroundName = backgroundSplit[0];
+        }
+
+        if (neededSprite == null)
+        {
+            foreach (string extension in fileExtensions)
+            {
+                neededSprite = Resources.Load<Sprite>("Images/BackgroundImages/" + extension + "/" + backgroundName);
+                if (neededSprite != null)
+                {
+                    break;
+                }
+            }
+        }
+
+        background.sprite = neededSprite;
+
         currentNeighborhoodPosition = newPosition;
     }
 
@@ -263,7 +305,9 @@ public class WorldManager : MonoBehaviour {
         CheckNeighbors();
 	}
 
-    // Check the unlock conditions of everything in the world (neighborhoods, locations and activities)
+    /// <summary>
+    /// Check the unlock conditions of everything in the world (neighborhoods, locations and activities)
+    /// </summary>
     void RunThroughWorld()
     {
         if (neighborhoodMap != null)

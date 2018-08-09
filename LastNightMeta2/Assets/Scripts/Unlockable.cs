@@ -25,6 +25,7 @@ public class Unlockable: MonoBehaviour {
         if (unlocked)
         {
             newTagsSpawned = 1;
+            ToDoWhenUnlocked();
         }
         else
         {
@@ -37,7 +38,16 @@ public class Unlockable: MonoBehaviour {
         return unlocked;
     }
 
-    // Check if the unlock condition is satisfied.
+    /// <summary>
+    /// Different subclasses has different things to take care of when something gets unlocked
+    /// </summary>
+    protected virtual void ToDoWhenUnlocked()
+    {
+    }
+
+    /// <summary>
+    /// Check if the unlock condition is satisfied. If it is, notify the player that something just got unlocked
+    /// </summary>
     public void checkUnlockCondition()
     {
         if (!unlocked)
@@ -47,6 +57,8 @@ public class Unlockable: MonoBehaviour {
             if (unlocked)
             {
                 PushNotification();
+
+                ToDoWhenUnlocked();
 
                 // If this Unlockable is a Location or an Activity, spawn a new tag on self
                 // If this Unlockable is a Neighborhood, the Worldmanager will spawn a new tag on the arrows that navigate to this Neighborhood.
@@ -58,7 +70,9 @@ public class Unlockable: MonoBehaviour {
         }
     }
 
-    // Notify the player of what has just been unlocked
+    /// <summary>
+    /// Notify the player of what has just been unlocked
+    /// </summary>
     void PushNotification()
     {
         if (!notificationPushed)
@@ -79,8 +93,11 @@ public class Unlockable: MonoBehaviour {
         }
     }
 
-    // Spawn a "New!" tag on the specified game object
-    // Also set this Unlockable to be the spawner of that "New!" tag
+    /// <summary>
+    /// Spawn a "New!" tag on the specified game object
+    /// Also set this Unlockable to be the spawner of that "New!" tag
+    /// </summary>
+    /// <param name="toSpawnOn"></param>
     public void SpawnNewTagOnObject(GameObject toSpawnOn)
     {
         toSpawnOn.AddComponent<NewTag>();

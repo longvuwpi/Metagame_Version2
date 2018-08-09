@@ -9,10 +9,11 @@ public class PopUpController : MonoBehaviour {
     public AnimationCurve inCurve;
     public AnimationCurve outCurve;
 
+    // it's a FIFO queue of notifications
+    // If list is not empty, the first notification in the list will show up and be removed from the list
     List<GameObject> notificationObjects = new List<GameObject>();
+
     GameObject currentIn;
-    List<string> notifications = new List<string>();
-    List<string> popUpImages = new List<string>();
 
     [System.NonSerialized] Vector3 startNotiPos = new Vector2(0, -800);
     [System.NonSerialized] Vector3 endNotiPos = new Vector2(0, 800);
@@ -32,29 +33,15 @@ public class PopUpController : MonoBehaviour {
             gameObject.transform.SetAsLastSibling();
             if (!animIn)
             {
-                //if (currentIn == null)
-                //{
-                //    currentIn = notificationObjects[0];
-                //    notificationObjects.RemoveAt(0);
-                //    StartCoroutine(LerpIn(currentIn));
-                //}
-                //else if (!currentIn.Equals(notificationObjects[notificationObjects.Count-1]))
-                //{
-                //    int index = notificationObjects.IndexOf(currentIn);
-                //    currentIn = notificationObjects[index + 1];
-                //    StartCoroutine(LerpIn(currentIn));
-                //}
-                Debug.Log("count " + notificationObjects.Count);
+                // the first notification is removed from the list and slides in
                 currentIn = notificationObjects[0];
-                Debug.Log(currentIn.GetComponentInChildren<Text>().text);
                 notificationObjects.RemoveAt(0);
-                Debug.Log("after remove " + currentIn.GetComponentInChildren<Text>().text);
                 StartCoroutine(LerpIn(currentIn));
             }
         }
         else
         {
-            if (!animOut)
+            if ((!animOut) && (!animIn))
             {
                 // Once everything has finished sliding in and out, hide the pop up panel
                 gameObject.transform.SetAsFirstSibling();
@@ -65,7 +52,7 @@ public class PopUpController : MonoBehaviour {
     // Notification slides in from out of the screen
     IEnumerator LerpIn(GameObject notiClone)
     {
-        
+        Debug.Log("Started " + notiClone.GetComponentInChildren<Text>().text);
 
         animIn = true;
         float time = 0;
@@ -82,7 +69,6 @@ public class PopUpController : MonoBehaviour {
         }
 
         notiClone.transform.localPosition = new Vector3(0, 0, 0);
-        //animIn = false;
     }
 
     // Once clicked, the current notification will slide out and another notification will slide in (if there's any left)
@@ -94,10 +80,6 @@ public class PopUpController : MonoBehaviour {
         StartCoroutine(LerpOut(currentIn));
 
         animIn = false;
-
-        Debug.Log("clicked");
-        Debug.Log(animIn ? "still in anim" : "not in anim");
-        Debug.Log("notifications count " + notifications.Count);
     }
 
     // Notification slides out of the screen
@@ -124,21 +106,25 @@ public class PopUpController : MonoBehaviour {
         animOut = animIn;
     }
 
-    // Add a notification 
+    // Add a notification without a pop up image
     public void AddNotification(string newNoti)
     {
         AddNotification(newNoti, "");
     }
 
+    // Add a notification with the specified pop up image
     public void AddNotification(string newNoti, string popUpImage)
     {
-        // Slide a notification in if nothing is sliding in yet
+        // Create a new notification
         GameObject notiClone = Instantiate(notification);
+        // Set the text
         notiClone.GetComponentInChildren<Text>().text = newNoti;
         notiClone.transform.SetParent(gameObject.transform);
         //notiClone.transform.SetAsFirstSibling();
         notiClone.transform.localScale = new Vector3(1, 1, 1);
         notiClone.transform.localPosition = startNotiPos;
+        
+        // Set the pop up image
         if (popUpImage.Equals(""))
         {
             foreach (Image image in notiClone.GetComponentsInChildren<Image>())
@@ -151,14 +137,18 @@ public class PopUpController : MonoBehaviour {
         }
         else
         {
-            notiClone.GetComponentInChildren<Image>().sprite = Resources.Load<Sprite>("Images/PopUpImages" + popUpImage);
+            foreach (Image image in notiClone.GetComponentsInChildren<Image>())
+            {
+                if (image.gameObject.name == "Image")
+                {
+                    image.sprite = Resources.Load<Sprite>("Images/PopUpImages/" + popUpImage);
+                }
+            }
         }
         notiClone.SetActive(true);
 
         notificationObjects.Add(notiClone);
         Debug.Log("Added " + newNoti);
-        //StartCoroutine(LerpIn(notiClone));
-
 
     }
 

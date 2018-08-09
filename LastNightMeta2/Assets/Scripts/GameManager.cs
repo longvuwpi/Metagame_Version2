@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 // For any game logic that doesn't belong to the player or the overworld
 // right now only keeps track of the time, sets the background corresponding to the current time frame
+// Need to change to fit with current version's calendar (whether it has days of week or not, how many timeslots per day)
 public class GameManager : MonoBehaviour {
     public TextMeshProUGUI timeText;
     public Image dayMask, nightMask;
@@ -16,7 +17,7 @@ public class GameManager : MonoBehaviour {
     int currentDayOfWeek = 0;
     int currentDay = 1;
     int currentTimeFrame = 0;
-    int totalDays = 10;
+    int totalDays = 14;
 
     [System.NonSerialized] Color dayColor = new Color(1, 1, 1, 0.19f);
     [System.NonSerialized] Color afternoonColor = new Color(1, 1, 1, 0.33f);
@@ -32,7 +33,7 @@ public class GameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        timeText.text = "Day " + currentDay.ToString() + " of " + totalDays.ToString() + " - " + days[currentDayOfWeek] + " " + timeFrames[currentTimeFrame];
+        timeText.text = "Day " + currentDay.ToString() + " of " + totalDays.ToString() + " - " + timeFrames[currentTimeFrame];
 	}
 
     public int GetCurrentAvailabilitySlot()

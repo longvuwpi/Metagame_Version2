@@ -10,6 +10,10 @@ public class Activity : Unlockable {
     public Text activityText, costText, outcomeText;
     public TextMeshProUGUI availabilityText;
 
+    //Placed on top of locked activities
+    public GameObject lockedOverlay;
+
+    //Fields as specified on the Forgotten Planet spreadsheet
     [System.NonSerialized] public string activity;
     [System.NonSerialized] List<bool> availability;
     [System.NonSerialized] public string location;
@@ -23,8 +27,9 @@ public class Activity : Unlockable {
     [System.NonSerialized] string outcomeOverrideMessage;
     [System.NonSerialized] string popUpMessage;
     [System.NonSerialized] string popUpImage;
-    [System.NonSerialized] Color unavailableColor = new Color(0.3725f, 0.2f, 0.2235f);
     [System.NonSerialized] bool hidden = false;
+
+    [System.NonSerialized] Color unavailableColor = new Color(0.3725f, 0.2f, 0.2235f);
 
     // Use this for initialization
     void Start () {
@@ -33,54 +38,74 @@ public class Activity : Unlockable {
 	}
 	
 	// Update is called once per frame
+    // Set the correct colors and availability text based on the current state of the activity
 	void Update () {
-        // If it's accessible
-		if (isAvailable())
+        if (unlocked)
         {
-            if (isAccessible())
+            // If it's available at the current time of day
+            if (isAvailable())
             {
-                availabilityText.text = GetNearestAvailable(false);
-                GetComponent<Image>().color = Color.white;
-                if (!FindObjectOfType<PlayerManager>().checkCost(this))
+                // if the accessibility condition is satisfied
+                if (isAccessible())
                 {
-                    costText.color = Color.red;
-                } else
-                {
-                    costText.color = Color.black;
+                    // Show the nearest time when the activity will become unavailable
+                    availabilityText.text = GetNearestAvailable(false);
+                    GetComponent<Image>().color = Color.white;
+                    // cost is red when cannot be met, black when met
+                    if (!FindObjectOfType<PlayerManager>().checkCost(this))
+                    {
+                        costText.color = Color.red;
+                    }
+                    else
+                    {
+                        costText.color = Color.black;
+                    }
                 }
-            } else
-            {
-                //availabilityText.gameObject.SetActive(true);
-                GetComponent<Image>().color = unavailableColor;
-                if (!notAccessibleOverrideText.Equals(""))
+                // if the accessibility condition is not satisfied
+                else
                 {
-                    availabilityText.text = notAccessibleOverrideText;
-                } else
-                {
-                    availabilityText.text = "Accessible when " + accessibilityCondition;
+                    // make the card background color change to brown
+                    GetComponent<Image>().color = unavailableColor;
+                    // If there's an override text for inaccessible, show it. otherwise, show the accessibility condition
+                    if (!notAccessibleOverrideText.Equals(""))
+                    {
+                        availabilityText.text = notAccessibleOverrideText;
+                    }
+                    else
+                    {
+                        availabilityText.text = "Accessible when " + accessibilityCondition;
+                    }
                 }
             }
-        } else
-        {
-            // else, card is unavailable
-            //availabilityText.gameObject.SetActive(true);
-            GetComponent<Image>().color = unavailableColor;
-            availabilityText.text = GetNearestAvailable(true);
+            else
+            {
+                // else, card is unavailable at the moment. Show when the card will become available
+                GetComponent<Image>().color = unavailableColor;
+                availabilityText.text = GetNearestAvailable(true);
+            }
         }
 	}
 
-    // Set the content of this Activity based on the full string pulled from spreadsheet
+    /// <summary>
+    /// When an activity is unlocked, the lock layer covering the activity is destroyed
+    /// </summary>
+    override
+    protected void ToDoWhenUnlocked()
+    {
+        Destroy(lockedOverlay);
+    }
+
+    /// <summary>
+    /// Set the content of this Activity based on the full string pulled from spreadsheet
+    /// the format is specified on the spreadsheet
+    /// </summary>
+    /// <param name="content"></param>
     public void SetContent(string content)
     {
         string[] contentSplit = content.Split(',');
         int length = contentSplit.Length;
 
         activity = contentSplit[0].Trim();
-        
-        //
-        //accessibilityCondition = contentSplit[3].Trim();
-        //
-        //mechanicalOutcomes = contentSplit[5].Trim();
 
         availability = new List<bool>();
 
@@ -125,6 +150,16 @@ public class Activity : Unlockable {
 
         SetUnlockedOnCreate();
 
+        if (!unlocked)
+        {
+            if (lockedOverrideMessage.Equals(""))
+            {
+                Destroy(lockedOverlay.GetComponentInChildren<Text>().gameObject);
+            } else
+            {
+                lockedOverlay.GetComponentInChildren<Text>().text = lockedOverrideMessage;
+            }
+        }
     }
 
     void SetCostText()
@@ -136,60 +171,70 @@ public class Activity : Unlockable {
     void SetOutcomeText()
     {
         outcomeText.text = "Outcomes:";
-        string[] outcomeSplit = mechanicalOutcomes.Split(null);
-        foreach (string outcome in outcomeSplit)
+        if (outcomeOverrideMessage.Equals(""))
         {
-            if (outcome.Contains("Gains"))
+            string[] outcomeSplit = mechanicalOutcomes.Split(null);
+            foreach (string outcome in outcomeSplit)
             {
-                outcomeText.text += " " + outcome;
-            } else
-            {
-                string[] eachOutcome = outcome.Split(new[] { '+' }, 2);
-                if (eachOutcome.Length < 2)
+                if (outcome.Contains("Gains"))
                 {
-                    Debug.Log("short outcome, it's " + outcome);
+                    outcomeText.text += " " + outcome;
                 }
-                if (!FindObjectOfType<PlayerManager>().isHiddenVariable(eachOutcome[0])) {
-                    if (!eachOutcome[1].Contains("d"))
+                else
+                {
+                    string[] eachOutcome = outcome.Split(new[] { '+' }, 2);
+                    if (eachOutcome.Length < 2)
                     {
-                        outcomeText.text += " " + outcome;
-                    } else
+                        Debug.Log("short outcome, it's " + outcome);
+                    }
+                    if (!FindObjectOfType<PlayerManager>().isHiddenVariable(eachOutcome[0]))
                     {
-                        outcomeText.text += " " + eachOutcome[0] + "+";
-
-                        string[] diceSplit = eachOutcome[1].Split('d');
-                        int rollTimes = int.Parse(diceSplit[0]);
-                        char needed_operator;
-
-                        if (outcome.Contains("-"))
+                        if (!eachOutcome[1].Contains("d"))
                         {
-                            needed_operator = '-';
+                            outcomeText.text += " " + outcome;
                         }
                         else
                         {
-                            needed_operator = '+';
+                            outcomeText.text += " " + eachOutcome[0] + "+";
+
+                            string[] diceSplit = eachOutcome[1].Split('d');
+                            int rollTimes = int.Parse(diceSplit[0]);
+                            char needed_operator;
+
+                            if (outcome.Contains("-"))
+                            {
+                                needed_operator = '-';
+                            }
+                            else
+                            {
+                                needed_operator = '+';
+                            }
+
+                            string[] diceSplit1 = diceSplit[1].Split(new[] { needed_operator }, StringSplitOptions.None);
+                            int splitMax = int.Parse(diceSplit1[0]);
+                            int addOn = (needed_operator.Equals('-') ? (-1) : 1) * int.Parse(diceSplit1[1]);
+                            int lowest = 0;
+                            int highest = 0;
+
+                            for (int i = 1; i <= rollTimes; i++)
+                            {
+                                lowest += 1;
+                                highest += splitMax;
+                            }
+
+                            lowest += addOn;
+                            highest += addOn;
+
+                            outcomeText.text += " " + lowest + " to " + highest;
+
                         }
-
-                        string[] diceSplit1 = diceSplit[1].Split(new[] { needed_operator }, StringSplitOptions.None);
-                        int splitMax = int.Parse(diceSplit1[0]);
-                        int addOn = (needed_operator.Equals('-') ? (-1) : 1) * int.Parse(diceSplit1[1]);
-                        int lowest = 0;
-                        int highest = 0;
-
-                        for (int i = 1; i <= rollTimes; i++)
-                        {
-                            lowest += 1;
-                            highest += splitMax;
-                        }
-
-                        lowest += addOn;
-                        highest += addOn;
-
-                        outcomeText.text += " " + lowest + " to " + highest;
-
                     }
                 }
             }
+        }
+        else
+        {
+            outcomeText.text += " " + outcomeOverrideMessage;
         }
     }
 
@@ -262,26 +307,32 @@ public class Activity : Unlockable {
         return result;
     }
 
-    // When this activity is clicked
+    /// <summary>
+    /// When an activity is clicked, if it's unlocked the PlayerManager will be notified
+    /// in suitable situations
+    /// </summary>
     public void ActivityClicked()
     {
-        PlayerManager playerManager = FindObjectOfType<PlayerManager>();
-        GameManager gameManager = FindObjectOfType<GameManager>();
-
-        // If the activity is accessible, available, and player has enough resource to pay for it
-        if (isAccessible() && isAvailable() && playerManager.checkCost(this))
+        if (unlocked)
         {
-            if (!popUpMessage.Equals(""))
-            {
-                FindObjectOfType<PopUpController>().AddNotification(popUpMessage, popUpImage);
-            }
+            PlayerManager playerManager = FindObjectOfType<PlayerManager>();
+            GameManager gameManager = FindObjectOfType<GameManager>();
 
-            // To next time frame
-            gameManager.IncreaseTime();
-            // Apply costs and mechanical outcomes of the activity
-            playerManager.applyChanges(this);
-            // Close the activities panel
-            FindObjectOfType<ActivitiesController>().ClickedOutside();
+            // If the activity is accessible, available, and player has enough resource to pay for it
+            if (isAccessible() && isAvailable() && playerManager.checkCost(this))
+            {
+                if (!popUpMessage.Equals(""))
+                {
+                    FindObjectOfType<PopUpController>().AddNotification(popUpMessage, popUpImage);
+                }
+
+                // To next time frame
+                gameManager.IncreaseTime();
+                // Apply costs and mechanical outcomes of the activity
+                playerManager.applyChanges(this);
+                // Close the activities panel
+                FindObjectOfType<ActivitiesController>().ClickedOutside();
+            }
         }
     }
 }

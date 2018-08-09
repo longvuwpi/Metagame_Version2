@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 // This component is used to spawn a "New!" tag on the game object that it's attached to.
 // It also keeps track of what caused it to spawn.
-public class NewTag : MonoBehaviour, IPointerEnterHandler {
+public class NewTag : MonoBehaviour, IPointerClickHandler {
     GameObject newTag;
     GameObject spawner;
 
@@ -38,7 +38,7 @@ public class NewTag : MonoBehaviour, IPointerEnterHandler {
 
     // Destroy the new tag the first time the player mouses over this game object.
     // Add 1 to the number of new tags spawned by the spawner, to stop it from spawning other "New!" tags.
-    public void OnPointerEnter(PointerEventData eventData)
+    public void OnPointerClick(PointerEventData eventData)
     {
         Destroy(newTag);
 

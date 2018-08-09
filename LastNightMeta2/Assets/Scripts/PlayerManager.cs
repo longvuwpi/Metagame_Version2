@@ -5,66 +5,52 @@ using TMPro;
 using System;
 using System.Reflection;
 
-// Manages player stats, resources, relationships, and displaying those on the screen
+// Manages player stats, resources, relationships, etc and displaying those on the screen
 public class PlayerManager : MonoBehaviour {
     //Why Vector2: X values are actual values, Y values are cap values for resources or goal value for stats
+    /// <summary>
+    /// Resources are things players use to pay to do stuffs (Rest, Money, etc)
+    /// Stats are things players try to improve to get to a goal level (Salsa, Culture, etc)
+    /// </summary>
     Dictionary<string, Vector2> playerResources;
     Dictionary<string, Vector2> playerStats;
+
     //For relationships
     Dictionary<string, int> relationships;
-    //Hidden variables
+
+    /// <summary>
+    /// Hidden variables are used to control the flow of the game from the spreadsheet,
+    /// without showing the players what's happening under the hood
+    /// </summary>
     Dictionary<string, int> hiddenVariables;
 
-    //For Multipliers, should refactor later to combine all resources and stats into one single dictionary
-    //X is current multiplier, Y is how long it lasts
+    /// <summary>
+    /// Multipliers are applied on gains when players choose certain actions
+    /// for example when the chosen activity has Rest+10 as an outcome, but there's an x2 multipliers on Rest
+    /// then they'll gain 20 Rest
+    /// X is current multiplier, Y is how long it lasts
+    /// </summary>
     Dictionary<string, Vector2> multipliers;
-    public TextMeshProUGUI statsText, resourcesText, multiplierText;
 
-    //For tokens used in conditional activities
+    /// <summary>
+    /// In the Forgotten Planet mission:
+    ///     stats display Culture and Ritual
+    ///     resources has Rest
+    ///     larder has Fruits and Meats
+    ///     food skills include Gatherer and Hunter
+    ///     multiplier text shows if there's an active multiplier (there are no multipliers on hidden variables)
+    /// </summary>
+    public TextMeshProUGUI statsText, resourcesText, larderText, foodSkillsText, multiplierText;
+
+    /// ***Not being used in the Forgotten Planet mission, replaced by hidden variables and override messages
+    /// <summary>
+    /// Tokens are arbitrary terms that can be specified beforehand inside the program + the spreadsheet,
+    /// used to control the flow of the game and chain player actions together, make certain activities conditional
+    /// a class called TokenInterpreter translate each token to a readable sentence when the token is met or unmet (see TokenInterpreter)
+    /// </summary>
     Dictionary<string, int> tokens;
 
-    //Used with the Hill Queen spreadsheet
-    //HillPeopleTokenInterpreter tokenInterpreter = HillPeopleTokenInterpreter.GetInstance();
-
-    // Use this for initialization in Primary Metadata
-    //void Start()
-    //{
-    //    playerResources = new Dictionary<string, Vector2>();
-    //    playerStats = new Dictionary<string, Vector2>();
-    //    relationships = new Dictionary<string, int>();
-
-    //    multipliers = new Dictionary<string, Vector2>();
-
-    //    tokens = new Dictionary<string, int>();
-
-    //    playerResources.Add("Money", new Vector2(50, 0));
-    //    playerResources.Add("Rest", new Vector2(100, 100));
-    //    playerResources.Add("Distraction", new Vector2(0, 100));
-    //    multipliers.Add("Money", new Vector2(1, 0));
-    //    multipliers.Add("Rest", new Vector2(1, 0));
-    //    multipliers.Add("Distraction", new Vector2(1, 0));
-
-    //    playerStats.Add("Plot", new Vector2(0, 10));
-    //    playerStats.Add("Salsa", new Vector2(0, 50));
-    //    // playerStats.Add("Culture", new Vector2(0, 20));
-    //    multipliers.Add("Plot", new Vector2(1, 0));
-    //    multipliers.Add("Salsa", new Vector2(1, 0));
-    //    //multipliers.Add("Culture", new Vector2(1, 0));
-
-    //    relationships.Add("Drew", 0);
-    //    relationships.Add("Lhakpa", 0);
-    //    relationships.Add("Margot", 0);
-    //    multipliers.Add("Drew", new Vector2(1, 0));
-    //    multipliers.Add("Lhakpa", new Vector2(1, 0));
-    //    multipliers.Add("Margot", new Vector2(1, 0));
-    //    FindObjectOfType<RelationshipsPanelController>().PopulateRelationships();
-
-    //    statsText.text = "";
-    //    resourcesText.text = "";
-    //    multiplierText.text = "";
-    //}
-
-    // Used for initializations in Hill Queen spreadsheet
+    // Used for initializations for things in the Forgotten Planet spreadsheet
     void Start()
     {
         playerResources = new Dictionary<string, Vector2>();
@@ -102,6 +88,19 @@ public class PlayerManager : MonoBehaviour {
         hiddenVariables.Add("HasHunted", 0);
         hiddenVariables.Add("HasGathered", 0);
         hiddenVariables.Add("Endgame", 0);
+        hiddenVariables.Add("HutUpgrade", 0);
+
+        //For later
+        hiddenVariables.Add("GenericOne", 0);
+        hiddenVariables.Add("GenericTwo", 0);
+        hiddenVariables.Add("GenericThree", 0);
+        hiddenVariables.Add("GenericFour", 0);
+        hiddenVariables.Add("GenericFive", 0);
+        hiddenVariables.Add("GenericSix", 0);
+        hiddenVariables.Add("GenericSeven", 0);
+        hiddenVariables.Add("GenericEight", 0);
+        hiddenVariables.Add("GenericNine", 0);
+        hiddenVariables.Add("GenericTen", 0);
 
         //tokens.Add("FridgeStocked", 0);
         //tokens.Add("AfterNegotiations", 0);
@@ -111,41 +110,58 @@ public class PlayerManager : MonoBehaviour {
 
         statsText.text = "";
         resourcesText.text = "";
+        larderText.text = "";
+        foodSkillsText.text = "";
         multiplierText.text = "";
     }
 
+    /// <summary>
+    /// Check a variable to see if it's a hidden variable
+    /// </summary>
+    /// <param name="variable"></param>
+    /// <returns></returns>
     public bool isHiddenVariable(string variable)
     {
         return hiddenVariables.ContainsKey(variable);
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// display values on the screen
+    /// </summary>
     void Update()
     {
         string resourcesString = "";
         string statsString = "";
+        string larderString = "";
+        string foodSkillsString = "";
         string multiplierString = "";
 
         // Display resources and stats
         // By just composing strings for now, probably will need classes and objects for each stat/resource later
 
-        foreach (KeyValuePair<string, Vector2> resource in playerResources)
+        // Resources text only includes Rest for the Forgotten Planet
+        // the remaining resources belong to Larder
+        Vector2 restValue = playerResources["Rest"];
+        resourcesString += "Rest: ";
+        if (restValue.y == 0)
         {
-            string key = resource.Key;
-            Vector2 value = resource.Value;
+            resourcesString += restValue.x.ToString() + "\n";
+        }
+        else
+        {
+            resourcesString += restValue.x.ToString() + "/" + restValue.y.ToString() + "\n";
+        }
 
-            resourcesString += key + ": ";
-
-            if (value.y == 0)
+        //Larder text
+        foreach (KeyValuePair<string, Vector2> food in playerResources)
+        {
+            if (!food.Key.Equals("Rest"))
             {
-                resourcesString += value.x.ToString() + "\n";
-            }
-            else
-            {
-                resourcesString += value.x.ToString() + "/" + value.y.ToString() + "\n";
+                larderString += food.Key + ": " + food.Value.x + "\n";
             }
         }
 
+        //stats text
         foreach (KeyValuePair<string, Vector2> stat in playerStats)
         {
             string key = stat.Key;
@@ -163,6 +179,7 @@ public class PlayerManager : MonoBehaviour {
             }
         }
 
+        //multipliers text
         foreach (KeyValuePair<string, Vector2> multiplier in multipliers)
         {
             string eachMultiplier = "";
@@ -171,6 +188,16 @@ public class PlayerManager : MonoBehaviour {
                 eachMultiplier = "\n" + multiplier.Key + " gains x" + multiplier.Value.x.ToString() + " for " + multiplier.Value.y.ToString() + " time slots";
                 multiplierString += eachMultiplier;
             }
+        }
+        
+        //skills text
+        if (hiddenVariables["Gatherer"] > 0)
+        {
+            foodSkillsString += "Gatherer\n";
+        }
+        if (hiddenVariables["Hunter"] > 0)
+        {
+            foodSkillsString += "Hunter\n";
         }
 
         //if (tokens.Count > 0)
@@ -183,6 +210,8 @@ public class PlayerManager : MonoBehaviour {
 
         statsText.text = statsString;
         resourcesText.text = resourcesString;
+        larderText.text = larderString;
+        foodSkillsText.text = foodSkillsString;
         multiplierText.text = multiplierString;
     }
 
@@ -191,7 +220,12 @@ public class PlayerManager : MonoBehaviour {
         return relationships;
     }
 
-    //Check if there is enough resource to pay the cost for the specified activity
+    /// <summary>
+    /// Check if there is enough resource to pay the cost for the specified activity
+    /// costs for now only use variables in the Resources list
+    /// </summary>
+    /// <param name="activity"></param>
+    /// <returns></returns>
     public bool checkCost(Activity activity)
     {
         string cost = activity.costs;
@@ -212,15 +246,23 @@ public class PlayerManager : MonoBehaviour {
         return enoughResource;
     }
 
-    // Check the conditions in the string, return true if all conditions are satisfied
-    // Compatible with the format of the Hill Queen spreadsheet
+    /// <summary>
+    /// Check the conditions in the string, return true if all conditions are satisfied
+    /// condition checks for Day, or any variable defined in the Start() function
+    /// each condition in the string has to be in the form of Variable<X or Variable>=X
+    /// (not used for hide conditions)
+    /// </summary>
+    /// <param name="conditions"></param>
+    /// <returns></returns>
     public bool checkCondition(string conditions)
     {
+        //Default is true
         if (conditions.Equals(""))
         {
             return true;
         } else
         {
+            //Split by space to get each condition
             string[] conditionsSplit = conditions.Split(null);
             bool result = true;
 
@@ -298,9 +340,14 @@ public class PlayerManager : MonoBehaviour {
         }
     }
 
-
+    /// <summary>
+    /// The equivalent of checkCondition but for hide conditions
+    /// </summary>
+    /// <param name="conditions"></param>
+    /// <returns></returns>
     public bool checkHiddenCondition(string conditions)
     {
+        //Default is false (meaning not hidden)
         if (conditions.Equals(""))
         {
             return false;
@@ -372,12 +419,21 @@ public class PlayerManager : MonoBehaviour {
         }
     }
 
-    // check the acessibility condition of the specified activity
+    /// <summary>
+    /// Check the accessibility condition of the specified activity
+    /// </summary>
+    /// <param name="activity"></param>
+    /// <returns></returns>
     public bool checkAccessibility(Activity activity)
     {
         return checkCondition(activity.accessibilityCondition);
     }
     
+    /// <summary>
+    /// Get the current multiplier for the specified variable
+    /// </summary>
+    /// <param name="multiplierAttribute"></param>
+    /// <returns></returns>
     int getMultiplier(string multiplierAttribute)
     {
         Vector2 multiplierValue = multipliers[multiplierAttribute];
@@ -391,6 +447,9 @@ public class PlayerManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Decrease the duration of all multipliers until the duration is 0
+    /// </summary>
     public void decreaseMultiplierDuration()
     {
         List<string> keys = new List<string>(multipliers.Keys);
@@ -403,6 +462,9 @@ public class PlayerManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Decrease the duration of all tokens until the duration is 0
+    /// </summary>
     public void decreaseTokenDuration()
     {
         if (tokens.Count > 0)
@@ -418,7 +480,11 @@ public class PlayerManager : MonoBehaviour {
         }
     }
 
-    // apply the costs and mechanical outcomes of the activity
+    /// <summary>
+    /// apply the costs and mechanical outcomes of the activity
+    /// this is only called when the activity is available and accessible and the costs are met
+    /// </summary>
+    /// <param name="activity"></param>
     public void applyChanges(Activity activity)
     {
         //if (activity.doesRequireToken())
@@ -433,6 +499,7 @@ public class PlayerManager : MonoBehaviour {
         string[] costSplit = costs.Split(null);
         string[] gainSplit = gains.Split(null);
 
+        //apply the costs to resources
         if (!costs.Equals(""))
         {
             foreach (string cost in costSplit)
@@ -443,6 +510,13 @@ public class PlayerManager : MonoBehaviour {
             }
         }
 
+        // apply the outcomes
+        // outcomes can be:
+        //           Variable+XdY+C or Variable+XdY-C (roll Y-sided dice X times, add them all up, add C to (or subtract C from) the result, add that to the current value of the Variable
+        //           VariableGains*X:Y (bonus multiplier X for the Variable for the amount of Y time slots)
+        //           Relationships+X (all relationships increase by X)
+        //           Variable+X (any Variable increases by X)
+        //           Token:X (player has the effect of Token for X time slots)
         if (!gains.Equals(""))
         {
             foreach (string gain in gainSplit)

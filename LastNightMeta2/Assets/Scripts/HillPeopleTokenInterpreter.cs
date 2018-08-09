@@ -29,6 +29,12 @@ public class HillPeopleTokenInterpreter
         return Instance;
     }
 
+    /// <summary>
+    /// If the player has the token and its duration is greater than 0, return the Condition Met string for the token
+    /// otherwise return the Condition Unmet string for the token
+    /// </summary>
+    /// <param name="conditionString"></param>
+    /// <returns></returns>
     public string GetConditionString(string conditionString)
     {
         string result = "";

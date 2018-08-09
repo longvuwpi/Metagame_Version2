@@ -13,7 +13,12 @@ public class ActivitiesController : MonoBehaviour {
     Vector3 startingActivityPosition = new Vector3(0, 100, 0);
     List<Activity> currentActivities;
 
-    // Called whenever a location is clicked
+    /// <summary>
+    /// Called whenever a location is clicked
+    /// Gets all activities that can be shown to the player from that location into the panel
+    /// then activate the panel
+    /// </summary>
+    /// <param name="location"></param>
     public void LocationClicked(Location location)
     {
         locationPosition = location.gameObject.transform.localPosition;
@@ -22,7 +27,8 @@ public class ActivitiesController : MonoBehaviour {
         gameObject.transform.SetAsLastSibling();
 
         // Get all unlocked activities from the location
-        currentActivities = location.GetUnlockedUnhiddenActivities();
+        //currentActivities = location.GetUnlockedUnhiddenActivities();
+        currentActivities = location.GetActivitiesToShow();
 
         Debug.Log(currentActivities.Count + " current activities");
         for (int i = 0; i < currentActivities.Count; i++)
@@ -35,7 +41,10 @@ public class ActivitiesController : MonoBehaviour {
         StartCoroutine(ActivatePanel());
     }
 
-    // The panel floats from the clicked location to the middle of the screen
+    /// <summary>
+    /// The panel floats from the clicked location to the middle of the screen
+    /// </summary>
+    /// <returns></returns>
     IEnumerator ActivatePanel()
     {
         float perc = 0;
@@ -54,12 +63,18 @@ public class ActivitiesController : MonoBehaviour {
 
     }
 
+    /// <summary>
+    /// When clicked outside panel, deactivate it
+    /// </summary>
     public void ClickedOutside()
     {
         StartCoroutine(DeactivatePanel());
     }
 
-    //Reverse the activate animation
+    /// <summary>
+    /// Reverse the activate animation
+    /// </summary>
+    /// <returns></returns>
     IEnumerator DeactivatePanel()
     {
         float perc = 0;
